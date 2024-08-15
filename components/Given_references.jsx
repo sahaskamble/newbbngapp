@@ -21,7 +21,7 @@ export default function GivenReferences() {
       const authString = btoa(`${username}:${password}`);
       myHeaders.append("Authorization", `Basic ${authString}`);
 
-      const response = await fetch(`https://bbmoapp.bbnglobal.net/api/references/`, {
+      const response = await fetch(`https://bbmoapp.bbnglobal.net/api/references/index/given`, {
         method: 'GET',
         headers: myHeaders,
         redirect: "follow"
@@ -64,9 +64,7 @@ export default function GivenReferences() {
           </View>
         ) : (
           <View className='px-4 py-2'>
-            <ScrollView className='w-full' contentContainerStyle={{
-              paddingVertical: 20,
-            }}>
+            <ScrollView className='w-full'>
               {References.map((reference, index) => (
                 <View key={index} className='w-full bg-white h-auto p-4 text-gray-500 my-2 rounded-lg'>
                   <Text className='text-xl font-bold text-gray-600'>To : {reference.Reference.to_whom}</Text>

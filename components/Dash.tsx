@@ -19,7 +19,7 @@ const Dashboard = ({ children }: any) => {
   const [userinfo, setuserinfo]:any = useState('');
   const sideNavAnimation = useRef(new Animated.Value(0)).current; // Starting value for the sidebar
   const navlinks:links[] = [
-    { name: 'Dashboard', path: '/dashboard' },
+    { name: 'Dashboard', path: '/' },
     { name: 'Given References', path: '/given_references' },
     { name: 'Give New References', path: '/new_references' },
     { name: 'Received References', path: '/received_references' },
@@ -79,7 +79,7 @@ const Dashboard = ({ children }: any) => {
         <StyledTouchableOpacity onPress={toggleSideNav}>
           <Ionicons name="menu" size={28} color="white" />
         </StyledTouchableOpacity>
-        <StyledText className="text-white text-lg uppercase">{path.slice(1,20)}</StyledText>
+        <StyledText className="text-white text-lg uppercase">{path! ? 'dashboard': path.slice(1,20)}</StyledText>
       </StyledView>
       <StyledView className="flex-1">
 

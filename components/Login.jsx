@@ -32,7 +32,7 @@ const Login = () => {
 
         if (res.status === 200) {
           const data = await res.json();
-          const memberData = data.member.User; 
+          const memberData = data.member;
           const name = data.member.Member.name;
           if (name === data.member.Member.name) {
             setTimeout(() => {
@@ -122,18 +122,22 @@ const Login = () => {
         }
       </View>
 
-      <Pressable
-        style={styles.button}
-        onPress={handleLogin}
-      >
-        {
-          isLogged ? (
-            <Text className="bg-gray-400 text-white">Login</Text>
-          ):(
+      {
+        isLogged ? (
+          <Pressable
+            className="bg-gray-400 p-4 text-lg"
+          >
+            <Text className="bg-gray-400 text-white">Loading...</Text>
+          </Pressable>
+        ) : (
+          <Pressable
+            style={styles.button}
+            onPress={handleLogin}
+          >
             <Text style={styles.buttonText}>Login</Text>
-          )
-        }
-      </Pressable>
+          </Pressable>
+        )
+      }
     </View>
   );
 };
@@ -181,6 +185,7 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
+    fontSize: 18,
     height: 50,
   },
   rememberMeContainer: {
@@ -194,7 +199,7 @@ const styles = StyleSheet.create({
   },
   button: {
     backgroundColor: '#5bc0de',
-    paddingVertical: 20,
+    paddingVertical: 15,
     paddingHorizontal: 20,
     borderRadius: 5,
     marginTop: 20,

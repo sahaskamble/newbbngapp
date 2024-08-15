@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import { View, Text, Image, TouchableOpacity, ScrollView, Alert, BackHandler } from 'react-native';
 import { styled } from 'nativewind';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
@@ -12,11 +12,18 @@ const StyledImage = styled(Image);
 const ProfilePage = () => {
 
   const [userData, setUserData] = useState(null);
+  const [Icon, setIcon] = useState('')
   // const router = useRouter();
+  const [initials, setInitials] = useState('');
 
   useEffect(() => {
     loadUserData();
-  }, []);
+    if (userData != null) {
+      const fullname = userData.User.name;
+      const word = fullname.split(' ');
+      setInitials(word.map(words => words[0]).join(''));
+    }
+  }, [userData]);
 
   const loadUserData = async () => {
     try {
@@ -32,13 +39,25 @@ const ProfilePage = () => {
 
   const handleLogout = async () => {
     try {
-      await AsyncStorage.clear();
-      Alert.alert('Logged Out', 'You have been successfully logged out.');
-      router.navigate('/login');
+      await AsyncStorage.setItem('isLoggedIn', 'false');
+      await AsyncStorage.removeItem('userData');
+      console.log(await AsyncStorage.getItem('isLoggedIn'))
+      Alert.alert(
+        'Confirm Exit',
+        'Are you sure you want to Exit?',
+        [
+          {
+            'text': 'Exit', onPress: () => {
+              BackHandler.exitApp()
+            }
+          },
+        ]
+      );
     } catch (error) {
       console.error('Failed to clear AsyncStorage', error);
     }
   };
+
 
   if (!userData) {
     return (
@@ -52,26 +71,25 @@ const ProfilePage = () => {
     <ScrollView className="flex-1 bg-white p-4">
       {/* Profile Picture */}
       <StyledView className="items-center mt-8 mb-4">
-        <StyledImage
-          source={{ uri: 'https://your-image-link.com' }}
-          className="w-32 h-32 rounded-full"
-        />
+        <StyledView className='flex justify-center items-center w-[100px] h-[100px] bg-zinc-800 rounded-full'>
+          <StyledText
+            className='text-white text-4xl font-bold'
+          >
+            {initials}
+          </StyledText>
+        </StyledView>
       </StyledView>
 
       {/* User Info */}
       <StyledView className="items-center mb-8">
-        <StyledText className="text-2xl font-semibold mb-2">{userData.name}</StyledText>
-        <StyledText className="text-gray-500 mb-2">johndoe@example.com</StyledText>
-        <StyledText className="text-gray-500">San Francisco, CA</StyledText>
+        <StyledText className="text-2xl font-semibold mb-2">{userData.User?.name}</StyledText>
+        <StyledText className="text-gray-500 mb-2">{userData.User?.email}</StyledText>
+        <StyledText className="text-gray-500 mb-2">{userData.Member?.organization_website}</StyledText>
+        <StyledText className="text-gray-500 text-lg mb-2">{userData.Member?.organization_description}</StyledText>
       </StyledView>
 
       {/* Action Buttons */}
       <StyledView className="mt-4">
-        <StyledTouchableOpacity className="bg-blue-500 p-4 rounded-full mb-4">
-          <StyledText className="text-center text-white font-semibold">
-            Edit Profile
-          </StyledText>
-        </StyledTouchableOpacity>
 
         <StyledTouchableOpacity onPress={handleLogout} className="bg-red-500 p-4 rounded-full">
           <StyledText className="text-center text-white font-semibold">
@@ -87,6 +105,15 @@ export default ProfilePage;
 
 
 
+// <StyledImage
+//   source={{ uri: '' }}
+//   className="w-32 h-32 rounded-full"
+// />
+// <StyledTouchableOpacity className="bg-blue-500 p-4 rounded-full mb-4">
+//   <StyledText className="text-center text-white font-semibold">
+//     Edit Profile
+//   </StyledText>
+// </StyledTouchableOpacity>
 
 // import { View, Text, Image, TouchableOpacity } from 'react-native'
 // import React, { useEffect } from 'react'

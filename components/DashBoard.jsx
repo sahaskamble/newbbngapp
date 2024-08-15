@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react'
 import 'nativewind';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function DashBoard() {
 
@@ -28,6 +29,7 @@ export default function DashBoard() {
       if (res.ok) {
         setData(data.data);
         // console.log(data);
+        console.log(await AsyncStorage.getItem('isLoggedIn'))
       } else {
         console.log(")I'm failed to fetch");
       }
