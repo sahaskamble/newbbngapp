@@ -22,7 +22,7 @@ export default function GivenReferences() {
       const authString = btoa(`${username}:${password}`);
       myHeaders.append("Authorization", `Basic ${authString}`);
 
-      const response = await fetch(`https://bbmoapp.bbnglobal.net/api/references/`, {
+      const response = await fetch(`https://bbmoapp.bbnglobal.net/api/references/index/received`, {
         method: 'GET',
         headers: myHeaders,
         redirect: "follow"
@@ -57,19 +57,15 @@ export default function GivenReferences() {
   console.log(username, " ", password)
 
   return (
-    <View className='flex-1 mt-[28px] bg-gray-200'>
-      <SideNavbar />
+    <View className='flex-1 bg-gray-200'>
       {
         isLoading ? (
           <View className='flex-1 justify-center items-center'>
             <Text className='text-xl text-gray-500'>Loading...</Text>
           </View>
         ) : (
-          <View className='p-4'>
-            <Text onPress={fetchReferences}>Refresh</Text>
-            <ScrollView className='w-full py-2' contentContainerStyle={{
-              paddingVertical: 20,
-            }}>
+          <View className='px-4 py-2'>
+            <ScrollView className='w-full'>
               {References.map((reference, index) => (
                 <View key={index} className='w-full bg-white h-auto p-4 text-gray-500 my-2 rounded-lg'>
                   <Text className='text-xl font-bold text-gray-600'>To : {reference.Reference.to_whom}</Text>
