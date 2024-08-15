@@ -5,7 +5,6 @@ import { useRouter } from "expo-router";
 import { useState } from "react";
 import { FontAwesome } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { TouchableOpacity } from "react-native";
 
 const Login = () => {
 
@@ -15,11 +14,8 @@ const Login = () => {
   const [EyeClose, setEyeClose] = useState(false);
   const [Message, setMessage] = useState('');
   const [isLogged, setisLogged] = useState(false);
-  const [userData, setUserData] = useState([]);
-  const [isLoading, setisLoading] = useState(false);
 
   const handleLogin = async () => {
-    setisLoading(true);
     try {
       if (username !== '' && password !== '') {
         const myHeaders = new Headers();
@@ -27,7 +23,7 @@ const Login = () => {
         const authString = btoa(`${username}:${password}`);
         myHeaders.append("Authorization", `Basic ${authString}`);
 
-        console.log(authString);
+        // console.log(authString);
 
         const res = await fetch('https://bbmoapp.bbnglobal.net/api/users/login', {
           method: 'POST',
@@ -36,7 +32,7 @@ const Login = () => {
 
         if (res.status === 200) {
           const data = await res.json();
-          const memberData = data.member;
+          const memberData = data.member.User; 
           const name = data.member.Member.name;
           if (name === data.member.Member.name) {
             setTimeout(() => {
@@ -45,11 +41,11 @@ const Login = () => {
             await AsyncStorage.setItem('username', username);
             await AsyncStorage.setItem('password', password);
             await AsyncStorage.setItem('isLoggedIn', 'true');
-            setUserData(memberData); // Save user data
-            await AsyncStorage.setItem('userData', JSON.stringify(userData)); // Store user data
+            console.log(memberData);
+            await AsyncStorage.setItem('userData', JSON.stringify(memberData)); // Store user data
             router.navigate('/dashboard');
           } else {
-            setisLoading(false);
+            setisLogged(false);
             alert('Login Unsuccessful');
           }
         } else {
@@ -65,7 +61,7 @@ const Login = () => {
     } catch (e) {
       throw console.error(e);
     } finally {
-      setisLoading(false);
+      setisLogged(false);
     }
   }
 
@@ -117,15 +113,13 @@ const Login = () => {
           }}
           style={styles.input}
         />
-        <TouchableOpacity onPress={() => { setEyeClose(!EyeClose) }} className="w-[40px] h-[40px] flex justify-center items-center">
-          {
-            EyeClose ? (
-              <FontAwesome name="eye" size={20} color='gray'/>
-            ) : (
-                <FontAwesome name="eye-slash" size={20} color='gray'/>
-              )
-          }
-        </TouchableOpacity>
+        {
+          EyeClose ? (
+            <FontAwesome name="eye" size={15} color='gray' onPress={() => { setEyeClose(!EyeClose) }} />
+          ) : (
+            <FontAwesome name="eye-slash" size={15} color='gray' onPress={() => { setEyeClose(!EyeClose) }} />
+          )
+        }
       </View>
 
       <Pressable
@@ -133,7 +127,7 @@ const Login = () => {
         onPress={handleLogin}
       >
         {
-          isLoading ? (
+          isLogged ? (
             <Text className="bg-gray-400 text-white">Login</Text>
           ):(
             <Text style={styles.buttonText}>Login</Text>
@@ -199,8 +193,8 @@ const styles = StyleSheet.create({
     color: '#666',
   },
   button: {
-    backgroundColor: '#2b81d8',
-    paddingVertical: 15,
+    backgroundColor: '#5bc0de',
+    paddingVertical: 20,
     paddingHorizontal: 20,
     borderRadius: 5,
     marginTop: 20,
