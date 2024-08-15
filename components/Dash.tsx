@@ -1,14 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, TouchableOpacity, StatusBar, Animated, Easing, Pressable, Image, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, StatusBar, Animated, Easing, Image, ScrollView } from 'react-native';
 import { styled } from 'nativewind';
 import { FontAwesome, Ionicons } from '@expo/vector-icons';
-import { Href, router, usePathname } from 'expo-router';
+import { Href, Link, router, usePathname } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const StyledView = styled(View);
 const StyledText = styled(Text);
 const StyledTouchableOpacity = styled(TouchableOpacity);
-// const StyledTouchableWithoutFeedback = styled(TouchableWithoutFeedback);
 type links = {
   name: string;
   path: Href<string | object>;
@@ -132,17 +131,24 @@ const Dashboard = ({ children }: any) => {
           <ScrollView>
             {
               navlinks.map((links, index) => (
-                <TouchableOpacity 
+                <Link 
                   key={index}
-                  onPress={() => { router.navigate(links.path); closeSideNav() }}
+                  href={links.path}
                   className='flex-row justify-start'
-                  activeOpacity={0.8}
+                  style={({ pressed }:any) => [
+                    {
+                      backgroundColor: pressed ? '#2b81d8' : 'transparent',
+                      paddingVertical: 10,
+                      paddingHorizontal: 15,
+                      borderRadius: 5,
+                    },
+                  ]}
                 >
                   <View className='w-[30px] h-[30px] mx-3'>
                     <FontAwesome name='dashboard' size={30} />
                   </View>
                   <StyledText className="text-lg mb-4">{links.name}</StyledText>
-                </TouchableOpacity>
+                </Link>
               ))
             }
           </ScrollView>
