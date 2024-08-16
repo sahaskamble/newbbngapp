@@ -19,7 +19,7 @@ const ProfilePage = () => {
   useEffect(() => {
     loadUserData();
     if (userData != null) {
-      const fullname = userData.User.name;
+      const fullname = userData.User?.name;
       const word = fullname.split(' ');
       setInitials(word.map(words => words[0]).join(''));
     }
