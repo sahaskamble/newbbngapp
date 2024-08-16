@@ -9,14 +9,17 @@ export default function GivenReferences() {
 
   const [References, setReferences] = useState([]);
   const [isLoading, setisLoading] = useState(false);
-  const [username, setusername] = useState('');
-  const [password, setpassword] = useState('');
+  // const [username, setusername] = useState('');
+  // const [password, setpassword] = useState('');
+  const [data, setdata] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
 
 
   const fetchReferences = async () => {
     setisLoading(true);
     try {
-      setisLoading(true);
+      const username = await AsyncStorage.getItem('username');
+      const password = await AsyncStorage.getItem('password');
       const myHeaders = new Headers();
       myHeaders.append("Accept", "application/json");
       const authString = btoa(`${username}:${password}`);
@@ -31,6 +34,7 @@ export default function GivenReferences() {
       const data = await response.json();
 
       if (response.status === 200) {
+        setdata(true);
         console.log(data);
         setReferences(data.references);
       } else {
@@ -40,21 +44,16 @@ export default function GivenReferences() {
       console.error('JSON parse error Help', e);
     } finally {
       setisLoading(false);
+      setdata(false)
     }
   }
 
   useEffect(() => {
-    const fetchcred = async () => {
-      const uname = await AsyncStorage.getItem('username');
-      const pass = await AsyncStorage.getItem('password');
-      setusername(uname);
-      setpassword(pass);
-    }
-    fetchcred();
     fetchReferences();
   }, [])
 
-  console.log(username, " ", password)
+  // console.log(References," ",data)
+  console.log(data)
 
   return (
     <View className='flex-1 bg-gray-200'>
@@ -110,11 +109,15 @@ export default function GivenReferences() {
                     <View className='w-full justify-center items-center'>
                       <View className='w-full flex-row justify-center items-center gap-4 my-2'>
                         <TouchableOpacity className='w-[33%] bg-blue-500 p-2 text-center rounded-md'>
-                          <Text className='text-white text-center'>Edit</Text>
+                          <Text className='text-white text-center'>Take Action</Text>
                         </TouchableOpacity>
+                          {
+                            reference.Reference.status === 'Business Done' ? (
                         <TouchableOpacity className='bg-teal-500 p-2 text-center rounded-md'>
-                          <Text className='text-white text-center'>Add Testimonial</Text>
+                          <Text className='text-white text-center'>Send Thank you Slip</Text>
                         </TouchableOpacity>
+                            ):('')
+                          }
                       </View>
                     </View>
                   </View>

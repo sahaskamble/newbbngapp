@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, TouchableOpacity, StatusBar, Animated, Easing, Image, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, StatusBar, Animated, Easing, Image, ScrollView, Pressable } from 'react-native';
 import { styled } from 'nativewind';
 import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import { Href, Link, router, usePathname } from 'expo-router';
@@ -15,14 +15,14 @@ type links = {
 
 const Dashboard = ({ children }: any) => {
   const [isSideNavOpen, setIsSideNavOpen] = useState(false);
-  const [userinfo, setuserinfo]:any = useState('');
+  const [userinfo, setuserinfo]: any = useState('');
   const sideNavAnimation = useRef(new Animated.Value(0)).current; // Starting value for the sidebar
-  const navlinks:links[] = [
+  const navlinks: links[] = [
     { name: 'Dashboard', path: '/' },
     { name: 'Given References', path: '/given_references' },
     { name: 'Give New References', path: '/new_references' },
     { name: 'Received References', path: '/received_references' },
-    { name: 'One to ones', path: '/onetoones'},
+    { name: 'One to ones', path: '/onetoones' },
     { name: 'Requirements', path: '/requirements' },
     { name: 'Logout', path: '/profile' },
   ];
@@ -78,7 +78,7 @@ const Dashboard = ({ children }: any) => {
         <StyledTouchableOpacity onPress={toggleSideNav}>
           <Ionicons name="menu" size={28} color="white" />
         </StyledTouchableOpacity>
-        <StyledText className="text-white text-lg uppercase">{path! ? 'dashboard': path.slice(1,20)}</StyledText>
+        <StyledText className="text-white text-lg uppercase">{path! ? 'dashboard' : path.slice(1, 20)}</StyledText>
       </StyledView>
       <StyledView className="flex-1">
 
@@ -123,7 +123,7 @@ const Dashboard = ({ children }: any) => {
             />
             <View className='flex items-center'>
               <Text className='text-[#2b81d8] text-xl font-bold'>
-                Welcome 
+                Welcome
               </Text>
               <Text className='text-[#2b81d8] text-xl font-bold'>{userinfo}</Text>
             </View>
@@ -131,24 +131,26 @@ const Dashboard = ({ children }: any) => {
           <ScrollView>
             {
               navlinks.map((links, index) => (
-                <Link 
+                <Pressable
                   key={index}
-                  href={links.path}
-                  className='flex-row justify-start'
-                  style={({ pressed }:any) => [
+                  style={({ pressed }) => [
                     {
-                      backgroundColor: pressed ? '#2b81d8' : 'transparent',
+                      backgroundColor: pressed ? '#2b81d870' : 'transparent',
                       paddingVertical: 10,
                       paddingHorizontal: 15,
                       borderRadius: 5,
                     },
                   ]}
+                  onPress={() =>{
+                    router.navigate(links.path);
+                    closeSideNav();
+                  }}
                 >
-                  <View className='w-[30px] h-[30px] mx-3'>
-                    <FontAwesome name='dashboard' size={30} />
-                  </View>
-                  <StyledText className="text-lg mb-4">{links.name}</StyledText>
-                </Link>
+                    <View className='w-[30px] h-[30px] mx-3'>
+                      <FontAwesome name='dashboard' size={30} />
+                    </View>
+                    <StyledText className="text-lg mb-4">{links.name}</StyledText>
+                </Pressable>
               ))
             }
           </ScrollView>

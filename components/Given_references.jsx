@@ -2,20 +2,28 @@ import { FontAwesome } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import 'nativewind';
+import { styled } from 'nativewind';
 import { useEffect, useState } from 'react';
-import { TouchableOpacity, ScrollView, Text, View } from 'react-native';
+import { TouchableOpacity, ScrollView, Text, View, Modal, TextInput } from 'react-native';
+
+const StyledView = styled(View);
+const StyledText = styled(Text);
+const StyledTouchableOpacity = styled(TouchableOpacity);
 
 export default function GivenReferences() {
-
+  const [modalVisible, setModalVisible] = useState(false);
   const [References, setReferences] = useState([]);
   const [isLoading, setisLoading] = useState(false);
-  const [username, setusername] = useState('');
-  const [password, setpassword] = useState('');
+  // const [username, setusername] = useState('');
+  // const [password, setpassword] = useState('');
+  const [data, setdata] = useState([]);
+  const [Testimonial, setTestimonial] = useState('');
 
   const fetchReferences = async () => {
     setisLoading(true);
     try {
-      setisLoading(true);
+      const username = await AsyncStorage.getItem('username');
+      const password = await AsyncStorage.getItem('password');
       const myHeaders = new Headers();
       myHeaders.append("Accept", "application/json");
       const authString = btoa(`${username}:${password}`);
@@ -29,8 +37,10 @@ export default function GivenReferences() {
 
       const data = await response.json();
 
+      // console.log("hellp")
       if (response.status === 200) {
         console.log(data);
+        setdata(data)
         setReferences(data.references);
       } else {
         setReferences([]);
@@ -43,17 +53,10 @@ export default function GivenReferences() {
   }
 
   useEffect(() => {
-    const fetchcred = async () => {
-      const uname = await AsyncStorage.getItem('username');
-      const pass = await AsyncStorage.getItem('password');
-      setusername(uname);
-      setpassword(pass);
-    }
-    fetchcred();
     fetchReferences();
   }, [])
 
-  console.log(username, " ", password)
+  console.log(References, " ", data)
 
   return (
     <View className='flex-1 bg-gray-200'>
@@ -108,14 +111,48 @@ export default function GivenReferences() {
                     </View>
                     <View className='w-full justify-center items-center'>
                       <View className='w-full flex-row justify-center items-center gap-4 my-2'>
-                        <TouchableOpacity onPress={()=>{ router.navigate('/new_references') }} className='w-[33%] bg-blue-500 p-2 text-center rounded-md'>
+                        <TouchableOpacity onPress={() => { router.navigate('/new_references') }} className='w-[33%] bg-blue-500 p-2 text-center rounded-md'>
                           <Text className='text-white text-center'>Edit</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity className='bg-teal-500 p-2 text-center rounded-md'>
+                        <TouchableOpacity onPress={() => setModalVisible(true)} className='bg-teal-500 p-2 text-center rounded-md'>
                           <Text className='text-white text-center'>Add Testimonial</Text>
                         </TouchableOpacity>
                       </View>
                     </View>
+                    <Modal
+                      animationType="fade"
+                      transparent={true}
+                      visible={modalVisible}
+                      onRequestClose={() => setModalVisible(false)}
+                    >
+                      <StyledView className="flex-1 justify-center items-center bg-[#00000020]">
+                        <StyledView className="w-80 bg-white rounded-lg p-6">
+                          <StyledText className="text-lg font-bold mb-2">Add Testimonial</StyledText>
+                          <TextInput
+                            className='text-lg p-2 my-3 bg-gray-300 rounded-lg'
+                            defaultValue={Testimonial}
+                            onChangeText={(e) => {
+                              setTestimonial(e);
+                            }}
+                          />
+                          {/* Button to close the modal */}
+                          <StyledView className='flex-row justify-center items-center gap-4'>
+                            <StyledTouchableOpacity
+                              onPress={() => {setModalVisible(false); setTestimonial('') }}
+                              className="p-2 bg-blue-500 rounded"
+                            >
+                              <StyledText className="text-white text-lg text-center">Save Testimonial</StyledText>
+                            </StyledTouchableOpacity>
+                            <StyledTouchableOpacity
+                              onPress={() => setModalVisible(false)}
+                              className="p-2 bg-red-500 rounded"
+                            >
+                              <StyledText className="text-white text-lg text-center">Cancel</StyledText>
+                            </StyledTouchableOpacity>
+                          </StyledView>
+                        </StyledView>
+                      </StyledView>
+                    </Modal>
                   </View>
                 </View>
               ))}

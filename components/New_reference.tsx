@@ -1,14 +1,17 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, TextInput, TouchableOpacity, StatusBar } from 'react-native';
 import { useRouter } from 'expo-router';
 import 'nativewind';
-import { FontAwesome } from '@expo/vector-icons';
+import { Picker } from '@react-native-picker/picker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const GiveNewReference = () => {
 
-  const router = useRouter();
-
   const today = new Date();
+  const [chapters, setchapters]: any = useState([]);
+  const [members, setmembers]: any = useState([]);
+  const [data, setdata] = useState({});
+  const [mem, setmem] = useState({});
   const todysdate = `${today.getDate()}-${today.getMonth()}-${today.getFullYear()}`;
   const [_date, setDate] = useState(todysdate);
   const [noOfReferences, setNoOfReferences] = useState('1');
@@ -26,11 +29,12 @@ const GiveNewReference = () => {
   const [pincode, setPincode] = useState('');
   const [isTrue, setisTrue] = useState(false);
   const [isLoading, setisLoading] = useState(false);
+  const [Username, setUsername] = useState('');
+  const [Password, setPassword] = useState('');
 
   const sendFormData = async () => {
-
+    setisLoading(true);
     try {
-      setisLoading(true);
       const response = await fetch('https://bbmoapp.bbnglobal.net/api/references/edit', {
         method: 'POST',
         headers: {
@@ -77,52 +81,139 @@ const GiveNewReference = () => {
     }
   };
 
-  console.log([
-    {
-      References_Details: {
-        _date,
-        noOfReferences
-      },
+  const fetchChapter = async () => {
+    setisLoading(true);
+    try {
+      console.log("uname", Username)
+      const myHeaders = new Headers();
+      myHeaders.append("Accept", "application/json");
+      const authString = btoa(`${Username}:${Password}`);
+      myHeaders.append("Authorization", `Basic ${authString}`);
+      console.log(authString)
 
-      References: {
-        chapter,
-        member,
-        nameOfReferral,
-        urgency,
-        mobile1,
-        mobile2,
-        addressLine1,
-        addressLine2,
-        email,
-        remarks,
-        location,
-        pincode
+      const res = await fetch(`https://bbmoapp.bbnglobal.net/api/chapters/index`, {
+        method: 'GET',
+        headers: myHeaders,
+        redirect: "follow"
+      });
+      const data1 = await res.json();
+      setdata(data);
+      if (data) {
+        if (data1 && typeof data1.chapters === 'object') {
+          const newChapters = Object.entries(data1.chapters).map(([key, value]) => ({
+            id: key,
+            name: value,
+          }))
+          setchapters((prevchapter: any) => [...prevchapter, ...newChapters]);
+        } else {
+          console.log("chapter is not an object")
+        }
       }
+    } catch (e) {
+      throw console.error(e);
+    } finally {
+      setisLoading(false);
     }
-  ])
+  }
+
+  const fetchmembers = async () => {
+    setisLoading(true);
+    try {
+      const myHeaders = new Headers();
+      myHeaders.append("Accept", "application/json");
+      const authString = btoa(`${Username}:${Password}`);
+      myHeaders.append("Authorization", `Basic ${authString}`);
+      console.log(authString)
+
+      const res = await fetch(`https://bbmoapp.bbnglobal.net/api/members/getmembers/${chapter}`, {
+        method: 'GET',
+        headers: myHeaders,
+        redirect: "follow"
+      });
+      const data1 = await res.json();
+      setmem(data1);
+      if (mem) {
+        if (data1 && typeof data1.chapters === 'object') {
+          const newMem = Object.entries(data1.members).map(([key, value]) => ({
+            id: key,
+            name: value,
+          }))
+          setmembers((prevmem: any) => [...prevmem, ...newMem]);
+        } else {
+          console.log("chapter is not an object")
+        }
+      }
+    } catch (e: any) {
+      throw console.error(e);
+    } finally {
+      setisLoading(false);
+    }
+  }
+
+  const loadUserdata = async () => {
+    const username: any = await AsyncStorage.getItem('username');
+    const password: any = await AsyncStorage.getItem('password');
+    setUsername(username);
+    setPassword(password);
+  }
+
+  useEffect(() => {
+    fetchmembers();
+    fetchChapter();
+    loadUserdata();
+  }, [])
+
+  // console.log([
+  //   {
+  //     References_Details: {
+  //       _date,
+  //       noOfReferences
+  //     },
+  //
+  //     References: {
+  //       chapter,
+  //       member,
+  //       nameOfReferral,
+  //       urgency,
+  //       mobile1,
+  //       mobile2,
+  //       addressLine1,
+  //       addressLine2,
+  //       email,
+  //       remarks,
+  //       location,
+  //       pincode
+  //     }
+  //   }
+  // ])
+
+  console.log(chapters);
+  console.log(data);
+  console.log(chapter);
+  console.log(Username);
+  console.log(Password);
 
   if (isLoading) {
     return (
-      <View className="flex justify-center items-center">
-        <Text className="text-xl text-gray-400">Loading...</Text>
+      <View className="flex-1 bg-white justify-center items-center">
+        <Text className="text-xl text-gray-600">Loading...</Text>
       </View>
     )
   } else {
     return (
       <View className="bg-blue-500 flex-1 justify-between">
         <ScrollView className="bg-white h-[80%] w-full px-4 py-4 " scrollToOverflowEnabled={true}>
-          <Text className={`${isTrue ? 'text-green-500 bg-green-200 p-2' : 'text-red-500 bg-red-200 p-2'} text-center my-4`}>{isTrue ? 'True reference is Saved' : ''}</Text>
           <View className="flex gap-4">
             <Text className="text-black text-lg bg-gray-200 border-gray-300 border w-full p-3 mt-7">Refferal Details</Text>
             <View>
               <Text className="text-lg">Date</Text>
               <TextInput
-                // defaultValue={_date}
+                defaultValue={_date}
                 className="p-2 text-lg text-black border border-gray-300"
                 onChangeText={(e) => {
                   setDate(e)
                 }}
-              >{todysdate}</TextInput>
+              />
             </View>
           </View>
 
@@ -139,23 +230,41 @@ const GiveNewReference = () => {
             </View>
             <View>
               <Text className="text-lg">Chapter{' '}<Text className="text-red-500">*</Text></Text>
-              <TextInput
-                defaultValue={chapter}
-                className="p-2 text-lg text-black border border-gray-300"
-                onChangeText={(e) => {
-                  setChapter(e);
+              <Picker
+                selectedValue={chapter}
+                onValueChange={(itemValue) => setChapter(itemValue)}
+                style={{
+                  height: 50,
                 }}
-              />
+              >
+                <Picker.Item label='--select--' value='0' />
+                {
+                  chapters?.map((chap: any, index: any) => {
+                    return (
+                      <Picker.Item key={index} label={chap.name} value={chap.id} />
+                    )
+                  })
+                }
+              </Picker>
             </View>
             <View>
               <Text className="text-lg">Member{' '}<Text className="text-red-500">*</Text></Text>
-              <TextInput
-                defaultValue={member}
-                className="p-2 text-lg text-black border border-gray-300"
-                onChangeText={(e) => {
-                  setMember(e);
+              <Picker
+                selectedValue={member}
+                onValueChange={(itemValue) => setMember(itemValue)}
+                style={{
+                  height: 50,
                 }}
-              />
+              >
+                <Picker.Item label='--select--' value='0' />
+                {
+                  members?.map((mem: any, index: any) => {
+                    return(
+                      <Picker.Item key={index} label={mem.name} value={mem.id} />
+                    )
+                  })
+                }
+              </Picker>
             </View>
             <View>
               <Text className="text-lg">Urgency</Text>
