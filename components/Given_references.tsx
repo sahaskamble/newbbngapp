@@ -14,16 +14,16 @@ export default function GivenReferences() {
   const [modalVisible, setModalVisible] = useState(false);
   const [References, setReferences] = useState([]);
   const [isLoading, setisLoading] = useState(false);
-  // const [username, setusername] = useState('');
-  // const [password, setpassword] = useState('');
   const [data, setdata] = useState([]);
   const [Testimonial, setTestimonial] = useState('');
+  const [Id, setId] = useState('');
 
   const fetchReferences = async () => {
     setisLoading(true);
     try {
       const username = await AsyncStorage.getItem('username');
       const password = await AsyncStorage.getItem('password');
+      console.log(username," ",password)
       const myHeaders = new Headers();
       myHeaders.append("Accept", "application/json");
       const authString = btoa(`${username}:${password}`);
@@ -39,7 +39,7 @@ export default function GivenReferences() {
 
       // console.log("hellp")
       if (response.status === 200) {
-        console.log(data);
+        // console.log(data);
         setdata(data)
         setReferences(data.references);
       } else {
@@ -52,11 +52,74 @@ export default function GivenReferences() {
     }
   }
 
+  const AddTestimonial = async () => {
+    setisLoading(true);
+    try {
+      const username = await AsyncStorage.getItem('username');
+      const password = await AsyncStorage.getItem('password');
+      const myHeaders = new Headers();
+      myHeaders.append("Accept", "application/json");
+      const authString = btoa(`${username}:${password}`);
+      myHeaders.append("Authorization", `Basic ${authString}`);
+
+      const res = await fetch(`https://bbmoapp.bbnglobal.net/api/references/add_testimonial`, {
+        method: 'POST',
+        headers: myHeaders,
+        redirect: 'follow',
+        body: JSON.stringify({
+          "Reference": {
+            "id": Id,
+            "testimonial": Testimonial
+          }
+        })
+      });
+
+      const result = await res.json();
+      if (result) {
+        console.log(result);
+      }
+    } catch (err) {
+      throw console.error(e)
+    } finally {
+      setisLoading(false);
+    }
+  }
+
+  const DeleteReference = async ()=>{
+    setisLoading(true);
+    try {
+      const username = await AsyncStorage.getItem('username');
+      const password = await AsyncStorage.getItem('password');
+      const myHeaders = new Headers();
+      myHeaders.append("Accept", "application/json");
+      const authString = btoa(`${username}:${password}`);
+      myHeaders.append("Authorization", `Basic ${authString}`);
+      console.log(authString)
+
+      const res = await fetch(`https://bbmoapp.bbnglobal.net/api/references/delete/${Id}`,{
+        method: 'GET',
+        headers: myHeaders,
+        redirect: 'follow'
+      });
+
+      const data = await res.json();
+      if (data.success === true) {
+        console.log(data);
+        fetchReferences();
+      }
+    } catch (err) {
+      throw console.error
+    } finally {
+      setisLoading(false);
+    }
+  }
+
   useEffect(() => {
     fetchReferences();
   }, [])
 
-  console.log(References, " ", data)
+  // console.log(References, " ", data)
+  console.log(Id, "ReferenceId")
 
   return (
     <View className='flex-1 bg-gray-200'>
@@ -110,14 +173,17 @@ export default function GivenReferences() {
                       </Text>
                     </View>
                     <View className='w-full justify-center items-center'>
-                      <View className='w-full flex-row justify-center items-center gap-4 my-2'>
-                        <TouchableOpacity onPress={() => { router.navigate('/new_references') }} className='w-[33%] bg-blue-500 p-2 text-center rounded-md'>
+                      <View className='w-full flex-row justify-center items-center gap-4 px-2 my-3'>
+                        <TouchableOpacity onPress={() => { router.navigate('/new_references') }} className='w-[50%] bg-blue-500 p-2 text-center rounded-md'>
                           <Text className='text-white text-center'>Edit</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity onPress={() => setModalVisible(true)} className='bg-teal-500 p-2 text-center rounded-md'>
-                          <Text className='text-white text-center'>Add Testimonial</Text>
+                        <TouchableOpacity onPress={()=>{ setId(reference.Reference?.id); DeleteReference();}} className='w-[50%] bg-red-500 p-2 text-center rounded-md'>
+                          <Text className='text-white text-center'>Delete</Text>
                         </TouchableOpacity>
                       </View>
+                      <TouchableOpacity onPress={() => { setModalVisible(true); setId(reference.Reference?.id); }} className='w-full bg-teal-500 p-2 text-center rounded-md'>
+                        <Text className='text-white text-center'>Add Testimonial</Text>
+                      </TouchableOpacity>
                     </View>
                     <Modal
                       animationType="fade"
@@ -138,7 +204,7 @@ export default function GivenReferences() {
                           {/* Button to close the modal */}
                           <StyledView className='flex-row justify-center items-center gap-4'>
                             <StyledTouchableOpacity
-                              onPress={() => {setModalVisible(false); setTestimonial('') }}
+                              onPress={() => { AddTestimonial(); setModalVisible(false); setTestimonial('') }}
                               className="p-2 bg-blue-500 rounded"
                             >
                               <StyledText className="text-white text-lg text-center">Save Testimonial</StyledText>

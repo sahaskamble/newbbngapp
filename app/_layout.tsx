@@ -28,19 +28,18 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="login" options={{ headerShown: false }} />
-        <Stack.Screen name="dashboard" options={{ headerShown: false }} />
-        <Stack.Screen name="profile" options={{ headerShown: false }} />
-        <Stack.Screen name="onetoones" options={{ headerShown: false }} />
-        <Stack.Screen name="given_references" options={{ headerShown: false }} />
-        <Stack.Screen name="new_references" options={{ headerShown: false }} />
-        <Stack.Screen name="received_references" options={{ headerShown: false }} />
-        <Stack.Screen name="requirements" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-    </ThemeProvider>
+    <Stack 
+      screenOptions={{
+        headerShown: false
+      }}
+    >
+      <Stack.Screen name="index" />
+      <Stack.Screen name="login" />
+      <Stack.Screen name="dashboard" />
+      <Stack.Screen name="profile" />
+      <Stack.Screen name="+not-found" />
+    </Stack>
   );
 }
+// <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+// </ThemeProvider>

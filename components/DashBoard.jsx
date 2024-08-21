@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, TouchableOpacity, Image, Dimensions } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, Image, Dimensions, BackHandler } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import 'nativewind';
 import FontAwesome from '@expo/vector-icons/FontAwesome';

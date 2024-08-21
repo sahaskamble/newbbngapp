@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import "nativewind";
 import Dashboard from '@/components/Dash';
 import Login from '@/components/Login';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { router } from 'expo-router';
 import DashBoard from '@/components/DashBoard';
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function Index() {
 
@@ -16,9 +16,9 @@ export default function Index() {
     setisLoggedIn(log);
   }
 
-  useEffect(() => {
+  useFocusEffect(() => {
     getLog();
-  }, [])
+  })
 
   if (isLoggedIn === 'false' || isLoggedIn === undefined || isLoggedIn === null) {
     return <Login />

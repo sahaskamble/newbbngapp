@@ -1,37 +1,46 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, TouchableOpacity, StatusBar, Animated, Easing, Image, ScrollView, Pressable } from 'react-native';
+import { View, Text, TouchableOpacity, StatusBar, Animated, Easing, Image, ScrollView } from 'react-native';
 import { styled } from 'nativewind';
 import { FontAwesome, Ionicons } from '@expo/vector-icons';
-import { Href, Link, router, usePathname } from 'expo-router';
+import { router, usePathname } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Dropdown from './Dropdown';
+import NavLink from './NavLink';
 
 const StyledView = styled(View);
 const StyledText = styled(Text);
 const StyledTouchableOpacity = styled(TouchableOpacity);
-type links = {
-  name: string;
-  path: Href<string | object>;
-}
 
 const Dashboard = ({ children }: any) => {
+
   const [isSideNavOpen, setIsSideNavOpen] = useState(false);
   const [userinfo, setuserinfo]: any = useState('');
   const sideNavAnimation = useRef(new Animated.Value(0)).current; // Starting value for the sidebar
-  const navlinks: links[] = [
-    { name: 'Dashboard', path: '/' },
-    { name: 'Given References', path: '/given_references' },
-    { name: 'Give New References', path: '/new_references' },
-    { name: 'Received References', path: '/received_references' },
-    { name: 'One to ones', path: '/onetoones' },
-    { name: 'Requirements', path: '/requirements' },
-    { name: 'Logout', path: '/profile' },
-  ];
+  const references: any = [
+    { name: 'Give New References', path: '/references/new_references' },
+    { name: 'Given References', path: '/references/' },
+    { name: 'Received References', path: '/references/received_references' },
+  ]
+  const donedeal: any = [
+    { name: 'business given', path: '/donedeals/business_given' },
+    { name: 'business received', path: '/donedeals/business_received' },
+  ]
+  const onoetoone: any = [
+    { name: 'New One to ones', path: '/onetoone/new_onetoone' },
+    { name: 'One to one Done', path: '/onetoone/onetoones' },
+  ]
+  const requirements: any = [
+    { name: 'Post your requirements', path: '/requirements/post_form' },
+    { name: 'View requirements', path: '/requirements/view_requirements' },
+  ]
   const path = usePathname();
+  const check = path.slice(1,13);
 
   const loaduserinfo = async () => {
     try {
-      const info = await AsyncStorage.getItem('username');
-      setuserinfo(info);
+      const info: any = await AsyncStorage.getItem('userData');
+      const data = JSON.parse(info);
+      setuserinfo(data?.User?.name);
     } catch (e) {
       throw console.error(e);
     }
@@ -40,11 +49,10 @@ const Dashboard = ({ children }: any) => {
   useEffect(() => {
     Animated.timing(sideNavAnimation, {
       toValue: isSideNavOpen ? 1 : 0,
-      duration: 300, // Duration of the animation
-      easing: Easing.ease,
+      duration: 200, // Duration of the animation
+      easing: Easing.linear,
       useNativeDriver: true,
     }).start();
-
     loaduserinfo();
   }, [isSideNavOpen, userinfo]);
 
@@ -74,11 +82,16 @@ const Dashboard = ({ children }: any) => {
       <StatusBar barStyle={'dark-content'} backgroundColor={'#2b81d8'} />
 
       {/* Top Navbar */}
-      <StyledView className="flex-row justify-between items-center bg-[#2b81d8] p-4 pt-10">
+      <StyledView className="flex-row justify-between items-center bg-[#2b81d8] p-3 px-4 pt-10">
         <StyledTouchableOpacity onPress={toggleSideNav}>
-          <Ionicons name="menu" size={28} color="white" />
+          <Ionicons name="menu" size={30} color="white" />
         </StyledTouchableOpacity>
-        <StyledText className="text-white text-lg uppercase">{path! ? 'dashboard' : path.slice(1, 20)}</StyledText>
+        <StyledView>
+          <StyledText className='text-white text-lg'>{ path.slice(1,10) }</StyledText>
+        </StyledView>
+        <StyledTouchableOpacity className='bg-black p-2 rounded-full' onPress={()=>{router.navigate('/profile')}}>
+          <Ionicons name="person" size={28} color="white" />
+        </StyledTouchableOpacity>
       </StyledView>
       <StyledView className="flex-1">
 
@@ -94,7 +107,7 @@ const Dashboard = ({ children }: any) => {
           style={{
             position: 'absolute',
             top: 0,
-            left: 3,
+            left: 0,
             height: '100%',
             width: '80%',
             opacity: sideNavOpacity,
@@ -129,30 +142,43 @@ const Dashboard = ({ children }: any) => {
             </View>
           </View>
           <ScrollView>
-            {
-              navlinks.map((links, index) => (
-                <Pressable
-                  key={index}
-                  style={({ pressed }) => [
-                    {
-                      backgroundColor: pressed ? '#2b81d870' : 'transparent',
-                      paddingVertical: 10,
-                      paddingHorizontal: 15,
-                      borderRadius: 5,
-                    },
-                  ]}
-                  onPress={() =>{
-                    router.navigate(links.path);
-                    closeSideNav();
-                  }}
-                >
-                    <View className='w-[30px] h-[30px] mx-3'>
-                      <FontAwesome name='dashboard' size={30} />
-                    </View>
-                    <StyledText className="text-lg mb-4">{links.name}</StyledText>
-                </Pressable>
-              ))
-            }
+            <NavLink icon='dashboard' link='/dashboard' routename='Dash board'/>
+            <Dropdown routename='References' icon='bell-o'>
+              {
+                references.map((links: any, index: any) => (
+                  <TouchableOpacity key={index} onPress={()=>{ closeSideNav(); router.navigate(links.path); }}>
+                    <StyledText key={index} className="text-lg mb-4">{links.name}</StyledText>
+                  </TouchableOpacity>
+                ))
+              }
+            </Dropdown>
+            <Dropdown routename='Done deals' icon='envelope-o'>
+              {
+                donedeal.map((links: any, index: any) => (
+                  <TouchableOpacity key={index} onPress={()=>{ closeSideNav(); router.navigate(links.path); }}>
+                    <StyledText key={index} className="text-lg mb-4">{links.name}</StyledText>
+                  </TouchableOpacity>
+                ))
+              }
+            </Dropdown>
+            <Dropdown routename='One To Ones' icon='heart-o'>
+              {
+                onoetoone.map((links: any, index: any) => (
+                  <TouchableOpacity key={index} onPress={()=>{ closeSideNav(); router.navigate(links.path); }}>
+                    <StyledText key={index} className="text-lg mb-4">{links.name}</StyledText>
+                  </TouchableOpacity>
+                ))
+              }
+            </Dropdown>
+            <Dropdown routename='Requirements' icon='heart-o'>
+              {
+                requirements.map((links: any, index: any) => (
+                  <TouchableOpacity key={index} onPress={()=>{ closeSideNav(); router.navigate(links.path); }}>
+                    <StyledText key={index} className="text-lg mb-4">{links.name}</StyledText>
+                  </TouchableOpacity>
+                ))
+              }
+            </Dropdown>
           </ScrollView>
         </Animated.View >
       )
