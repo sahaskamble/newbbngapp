@@ -9,7 +9,8 @@ export default function ReferenceLayout() {
       }}
     >
       <Stack.Screen name='new_references' />
-      <Stack.Screen name='index' />
+      <Stack.Screen name='given_references' />
+      <Stack.Screen name='received_references' />
     </Stack>
   )
 }

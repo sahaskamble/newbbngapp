@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, TouchableOpacity, StatusBar, Animated, Easing, Image, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, StatusBar, Animated, Easing, Image, ScrollView, Alert, BackHandler } from 'react-native';
 import { styled } from 'nativewind';
 import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import { router, usePathname } from 'expo-router';
@@ -18,23 +18,23 @@ const Dashboard = ({ children }: any) => {
   const sideNavAnimation = useRef(new Animated.Value(0)).current; // Starting value for the sidebar
   const references: any = [
     { name: 'Give New References', path: '/references/new_references' },
-    { name: 'Given References', path: '/references/' },
+    { name: 'Given References', path: '/references/given_references' },
     { name: 'Received References', path: '/references/received_references' },
   ]
   const donedeal: any = [
-    { name: 'business given', path: '/donedeals/business_given' },
-    { name: 'business received', path: '/donedeals/business_received' },
+    { name: 'Business Given', path: '/donedeals/business_given' },
+    { name: 'Business Received', path: '/donedeals/business_received' },
   ]
-  const onoetoone: any = [
-    { name: 'New One to ones', path: '/onetoone/new_onetoone' },
-    { name: 'One to one Done', path: '/onetoone/onetoones' },
+  const onetoone: any = [
+    { name: 'New One To Ones', path: '/onetoone/new_onetoone' },
+    { name: 'One To One Done', path: '/onetoone/onetoones' },
   ]
   const requirements: any = [
     { name: 'Post your requirements', path: '/requirements/post_form' },
     { name: 'View requirements', path: '/requirements/view_requirements' },
   ]
   const path = usePathname();
-  const check = path.slice(1,13);
+  const [isPath, setisPath] = useState('');
 
   const loaduserinfo = async () => {
     try {
@@ -46,6 +46,92 @@ const Dashboard = ({ children }: any) => {
     }
   }
 
+  const CheckPathRef = () => {
+    if (path === '/dashboard' || path === '/') {
+      setisPath('Dashboard');
+    } else if (path === '/profile') {
+      setisPath('Profile')
+    } else {
+      references.forEach((p: any) => {
+        if (p.path === path) {
+          setisPath(p.name);
+        } else {
+          console.log("path not match");
+          console.log(path);
+        }
+      });
+    }
+  }
+  const CheckPathDoneDeals = () => {
+    if (path === '/dashboard' || path === '/') {
+      setisPath('Dashboard');
+    } else if (path === '/profile') {
+      setisPath('Profile')
+    } else {
+      donedeal.forEach((d: any) => {
+        if (d.path === path) {
+          setisPath(d.name);
+        } else {
+          console.log("path not match");
+          console.log(path);
+        }
+      });
+    }
+  }
+  const CheckPathOnetoOnes = () => {
+    if (path === '/dashboard' || path === '/') {
+      setisPath('Dashboard');
+    } else if (path === '/profile') {
+      setisPath('Profile')
+    } else {
+      onetoone.forEach((o: any) => {
+        if (o.path === path) {
+          setisPath(o.name);
+        } else {
+          console.log("path not match");
+          console.log(path);
+        }
+      });
+    }
+  }
+  const CheckPathReq = () => {
+    if (path === '/dashboard' || path === '/') {
+      setisPath('Dashboard');
+    } else if (path === '/profile') {
+      setisPath('Profile')
+    } else {
+      requirements.forEach((r: any) => {
+        if (r.path === path) {
+          setisPath(r.name);
+        } else {
+          console.log("path not match");
+          console.log(path);
+        }
+      });
+    }
+  }
+
+  const handleLogout = async () => {
+    try {
+      await AsyncStorage.setItem('isLoggedIn', 'false');
+      await AsyncStorage.removeItem('userData');
+      console.log(await AsyncStorage.getItem('isLoggedIn'))
+      Alert.alert(
+        'Confirm Exit',
+        'Are you sure you want to Exit?',
+        [
+          {
+            'text': 'Exit', onPress: () => {
+              BackHandler.exitApp()
+            }
+          },
+        ]
+      );
+    } catch (error) {
+      console.error('Failed to clear AsyncStorage', error);
+    }
+  };
+
   useEffect(() => {
     Animated.timing(sideNavAnimation, {
       toValue: isSideNavOpen ? 1 : 0,
@@ -54,6 +140,10 @@ const Dashboard = ({ children }: any) => {
       useNativeDriver: true,
     }).start();
     loaduserinfo();
+    CheckPathRef();
+    CheckPathDoneDeals();
+    CheckPathOnetoOnes();
+    CheckPathReq();
   }, [isSideNavOpen, userinfo]);
 
   const toggleSideNav = () => {
@@ -79,7 +169,7 @@ const Dashboard = ({ children }: any) => {
   return (
     <StyledView className="flex-1">
       {/* Adjust the status bar */}
-      <StatusBar barStyle={'dark-content'} backgroundColor={'#2b81d8'} />
+      <StatusBar barStyle={"default"} backgroundColor={'#2b81d8'} />
 
       {/* Top Navbar */}
       <StyledView className="flex-row justify-between items-center bg-[#2b81d8] p-3 px-4 pt-10">
@@ -87,9 +177,9 @@ const Dashboard = ({ children }: any) => {
           <Ionicons name="menu" size={30} color="white" />
         </StyledTouchableOpacity>
         <StyledView>
-          <StyledText className='text-white text-lg'>{ path.slice(1,10) }</StyledText>
+          <StyledText className='text-white text-lg font-bold'>{isPath}</StyledText>
         </StyledView>
-        <StyledTouchableOpacity className='bg-black p-2 rounded-full' onPress={()=>{router.navigate('/profile')}}>
+        <StyledTouchableOpacity className='bg-black p-2 rounded-full' onPress={() => { router.navigate('/profile') }}>
           <Ionicons name="person" size={28} color="white" />
         </StyledTouchableOpacity>
       </StyledView>
@@ -141,12 +231,16 @@ const Dashboard = ({ children }: any) => {
               <Text className='text-[#2b81d8] text-xl font-bold'>{userinfo}</Text>
             </View>
           </View>
-          <ScrollView>
-            <NavLink icon='dashboard' link='/dashboard' routename='Dash board'/>
+          <ScrollView 
+           contentContainerStyle={{
+              padding: 12,
+            }}
+          >
+            <NavLink icon='dashboard' link='/dashboard' routename='Dash board' />
             <Dropdown routename='References' icon='bell-o'>
               {
                 references.map((links: any, index: any) => (
-                  <TouchableOpacity key={index} onPress={()=>{ closeSideNav(); router.navigate(links.path); }}>
+                  <TouchableOpacity key={index} onPress={() => { closeSideNav(); router.navigate(links.path); }}>
                     <StyledText key={index} className="text-lg mb-4">{links.name}</StyledText>
                   </TouchableOpacity>
                 ))
@@ -155,7 +249,7 @@ const Dashboard = ({ children }: any) => {
             <Dropdown routename='Done deals' icon='envelope-o'>
               {
                 donedeal.map((links: any, index: any) => (
-                  <TouchableOpacity key={index} onPress={()=>{ closeSideNav(); router.navigate(links.path); }}>
+                  <TouchableOpacity key={index} onPress={() => { closeSideNav(); router.navigate(links.path); }}>
                     <StyledText key={index} className="text-lg mb-4">{links.name}</StyledText>
                   </TouchableOpacity>
                 ))
@@ -163,8 +257,8 @@ const Dashboard = ({ children }: any) => {
             </Dropdown>
             <Dropdown routename='One To Ones' icon='heart-o'>
               {
-                onoetoone.map((links: any, index: any) => (
-                  <TouchableOpacity key={index} onPress={()=>{ closeSideNav(); router.navigate(links.path); }}>
+                onetoone.map((links: any, index: any) => (
+                  <TouchableOpacity key={index} onPress={() => { closeSideNav(); router.navigate(links.path); }}>
                     <StyledText key={index} className="text-lg mb-4">{links.name}</StyledText>
                   </TouchableOpacity>
                 ))
@@ -173,12 +267,19 @@ const Dashboard = ({ children }: any) => {
             <Dropdown routename='Requirements' icon='heart-o'>
               {
                 requirements.map((links: any, index: any) => (
-                  <TouchableOpacity key={index} onPress={()=>{ closeSideNav(); router.navigate(links.path); }}>
+                  <TouchableOpacity key={index} onPress={() => { closeSideNav(); router.navigate(links.path); }}>
                     <StyledText key={index} className="text-lg mb-4">{links.name}</StyledText>
                   </TouchableOpacity>
                 ))
               }
             </Dropdown>
+            <StyledView className="mt-4">
+              <StyledTouchableOpacity onPress={handleLogout} className="bg-red-500 p-3 rounded-full">
+                <StyledText className="text-center text-lg text-white font-semibold">
+                  Log Out
+                </StyledText>
+              </StyledTouchableOpacity>
+            </StyledView>
           </ScrollView>
         </Animated.View >
       )

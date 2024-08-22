@@ -14,12 +14,13 @@ const ProfilePage = () => {
   const [userData, setUserData] = useState(null);
   const [Icon, setIcon] = useState('')
   // const router = useRouter();
+  const URL = 'https://bbmoapp.bbnglobal.net';
   const [initials, setInitials] = useState('');
 
   useEffect(() => {
     loadUserData();
     if (userData != null) {
-      const fullname = userData.User.name;
+      const fullname = userData?.User?.name;
       const word = fullname.split(' ');
       setInitials(word.map(words => words[0]).join(''));
     }
@@ -37,63 +38,115 @@ const ProfilePage = () => {
     }
   };
 
-  const handleLogout = async () => {
-    try {
-      await AsyncStorage.setItem('isLoggedIn', 'false');
-      await AsyncStorage.removeItem('userData');
-      console.log(await AsyncStorage.getItem('isLoggedIn'))
-      Alert.alert(
-        'Confirm Exit',
-        'Are you sure you want to Exit?',
-        [
-          {
-            'text': 'Exit', onPress: () => {
-              BackHandler.exitApp()
-            }
-          },
-        ]
-      );
-    } catch (error) {
-      console.error('Failed to clear AsyncStorage', error);
-    }
+  const handleUpdateProfile = () => {
+    router.navigate('/update_profile');
   };
 
 
   if (!userData) {
     return (
       <View className="flex-1 justify-center items-center bg-gray-200">
-        <Text className="text-xl text-gray-500">Loading...</Text>
+        <Text className="text-xl text-gray-700">Loading...</Text>
       </View>
     );
   }
 
   return (
-    <ScrollView className="flex-1 bg-white p-4">
+    <ScrollView className="bg-gray-300"
+      contentContainerStyle={{
+        paddingVertical: 10,
+        paddingHorizontal: 15,
+      }}
+    >
       {/* Profile Picture */}
-      <StyledView className="items-center mt-8 mb-4">
-        <StyledView className='flex justify-center items-center w-[100px] h-[100px] bg-zinc-800 rounded-full'>
-          <StyledText
-            className='text-white text-4xl font-bold'
-          >
-            {initials}
-          </StyledText>
+      <StyledView className="flex-row items-center bg-white p-3 rounded-lg mb-4">
+        <StyledView className='flex justify-center items-center rounded-full'>
+          <Image
+            source={{ uri: `${URL}/files/member/profile_pic/${userData.Member?.profile_pic_dir}/${userData.Member?.profile_pic}` }}
+            resizeMode='cover'
+            style={{
+              width: 100,
+              height: 100,
+              borderRadius: 100,
+            }}
+            alt='Profile Pic'
+          />
+          <Text>Profile Pic</Text>
+        </StyledView>
+        <StyledView className='mx-4'>
+          <StyledText className="text-2xl font-semibold mb-1">{userData.User?.name}</StyledText>
+          <StyledText className="text-lg text-gray-700 ">{userData.City?.city}</StyledText>
         </StyledView>
       </StyledView>
 
       {/* User Info */}
-      <StyledView className="items-center mb-8">
-        <StyledText className="text-2xl font-semibold mb-2">{userData.User?.name}</StyledText>
-        <StyledText className="text-gray-500 mb-2">{userData.User?.email}</StyledText>
-        <StyledText className="text-gray-500 mb-2">{userData.Member?.organization_website}</StyledText>
-        <StyledText className="text-gray-500 text-lg mb-2">{userData.Member?.organization_description}</StyledText>
+      <StyledView className="bg-white rounded-lg p-3">
+        <StyledView className='flex-row items-center justify-start my-2'>
+          <StyledText className="text-lg text-gray-900 font-bold mr-8">Mobile:</StyledText>
+          <StyledText className="text-lg text-gray-700 mb-2">{userData.Member?.mobile_1}</StyledText>
+        </StyledView>
+        <StyledView className='flex-row items-center justify-start my-2'>
+          <StyledText className="text-lg text-gray-900 font-bold mr-8">Email:</StyledText>
+          <StyledText className="text-lg text-gray-700 mb-2">{userData.User?.email}</StyledText>
+        </StyledView>
+        <StyledView className='flex-row items-center justify-start my-2'>
+          <StyledText className="text-lg text-gray-900 font-bold mr-8">Logo:</StyledText>
+          <StyledView className='flex justify-center items-center rounded-full'>
+            <Image
+              source={{ uri: `${URL}/files/member/logo/${userData.Member?.logo_dir}/${userData.Member?.logo}` }}
+              resizeMode='cover'
+              style={{
+                width: 100,
+                height: 100,
+                borderRadius: 100,
+              }}
+              alt='Profile Pic'
+            />
+          </StyledView>
+        </StyledView>
+        <StyledView className='flex-row flex-wrap items-center justify-start my-2'>
+          <StyledText className="text-lg text-gray-900 font-bold mr-8">Business Category:</StyledText>
+          <StyledText className="text-lg text-gray-700 mb-2">{userData.Category?.category}</StyledText>
+        </StyledView> 
+        <StyledView className='flex-row flex-wrap items-center justify-start my-2'>
+          <StyledText className="text-lg text-gray-900 font-bold mr-8">Another Business Category:</StyledText>
+          <StyledText className="text-lg text-gray-700 mb-2">{userData.Member?.allied_services}</StyledText>
+        </StyledView> 
+        <StyledView className='flex-row flex-wrap items-center justify-start my-2'>
+          <StyledText className="text-lg text-gray-900 font-bold mr-8">Business Name:</StyledText>
+          <StyledText className="text-lg text-gray-700 mb-2">{userData.Member?.organization_name}</StyledText>
+        </StyledView>
+        <StyledView className='flex-row flex-wrap items-center justify-start my-2'>
+          <StyledText className="text-lg text-gray-900 font-bold mr-8">Business Tagline:</StyledText>
+          <StyledText className="text-lg text-gray-700 mb-2">{userData.Member?.business_tagline}</StyledText>
+        </StyledView>
+        <StyledView className='flex-row flex-wrap items-center justify-start my-2'>
+          <StyledText className="text-lg text-gray-900 font-bold mr-8">Business Description:</StyledText>
+          <StyledText className="text-lg text-gray-700 mb-2">{userData.Member?.organization_description}</StyledText>
+        </StyledView>
+        <StyledView className='flex-row flex-wrap items-center justify-start my-2'>
+          <StyledText className="text-lg text-gray-900 font-bold mr-8">Address:</StyledText>
+          <StyledText className="text-lg text-gray-700 mb-2">{`${userData.Member?.address_line_1}, ${userData.Member?.address_line_2}`}</StyledText>
+        </StyledView>
+        <StyledView className='flex-row flex-wrap items-center justify-start my-2'>
+          <StyledText className="text-lg text-gray-900 font-bold mr-8">Website:</StyledText>
+          <StyledText className="text-gray-700 mb-2">{userData.Member?.organization_website}</StyledText>
+        </StyledView>
+        <StyledView className='flex-row flex-wrap items-center justify-start my-2'>
+          <StyledText className="text-lg text-gray-900 font-bold mr-8">Specific Ask:</StyledText>
+          <StyledText className="text-gray-700 mb-2">{userData.Member?.specific_ask}</StyledText>
+        </StyledView>
+        <StyledView className='flex-row flex-wrap items-center justify-start my-2'>
+          <StyledText className="text-lg text-gray-900 font-bold mr-8">Specific Give:</StyledText>
+          <StyledText className="text-gray-600 mb-2">{userData.Member?.specific_give}</StyledText>
+        </StyledView>
       </StyledView>
 
       {/* Action Buttons */}
       <StyledView className="mt-4">
-
-        <StyledTouchableOpacity onPress={handleLogout} className="bg-red-500 p-4 rounded-full">
-          <StyledText className="text-center text-white font-semibold">
-            Logout
+        <StyledTouchableOpacity onPress={handleUpdateProfile} className="bg-blue-500 p-3 rounded-full">
+          <StyledText className="text-center text-lg text-white font-semibold">
+            Update Profile
           </StyledText>
         </StyledTouchableOpacity>
       </StyledView>
@@ -103,8 +156,13 @@ const ProfilePage = () => {
 
 export default ProfilePage;
 
-
-
+//
+// <StyledText
+//   className='text-white text-4xl font-bold'
+// >
+//   {initials}
+// </StyledText>
+//
 // <StyledImage
 //   source={{ uri: '' }}
 //   className="w-32 h-32 rounded-full"
