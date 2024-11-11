@@ -1,11 +1,12 @@
-import { View, Text, ScrollView, Image, Dimensions, BackHandler, Alert, TouchableOpacity, RefreshControl } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import { View, Text, ScrollView, Image, Dimensions, BackHandler, Alert, TouchableOpacity, RefreshControl, ActivityIndicator } from 'react-native'
+import React, { useCallback, useEffect, useState } from 'react'
 import 'nativewind';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Api_Url } from '@/constants/host_name';
 import LottieView from 'lottie-react-native';
+import { useFocusEffect } from 'expo-router';
 
 export default function DashBoard() {
 
@@ -49,9 +50,13 @@ export default function DashBoard() {
     }, 2000);
   }
 
-  useEffect(() => {
-    fetchDashboard();
+  useFocusEffect(
+    useCallback(() => {
+      fetchDashboard();
+    }, [])
+  )
 
+  useEffect(() => {
     const backAction = () => {
       Alert.alert('Hold on!', 'Are you sure you want to exit the app?', [
         {
@@ -75,14 +80,9 @@ export default function DashBoard() {
   if (isLoading) {
     return (
       <View className="flex-1 justify-center bg-white items-center">
-        <LottieView
-          autoPlay
-          source={require('@/assets/loader.json')}
-          style={{
-            width: 200,
-            height: 200,
-          }}
-        />
+        <View className='px-10 py-6 bg-white flex justify-center items-center rounded-md' style={{ elevation: 5 }}>
+          <ActivityIndicator color={'#3e70c9'} size={50} />
+        </View>
       </View>
     )
   }

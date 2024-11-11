@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, TextInput, TouchableOpacity, BackHandler } from 'react-native';
+import { View, Text, ScrollView, TextInput, TouchableOpacity, BackHandler, ActivityIndicator } from 'react-native';
 import 'nativewind';
 import { Picker } from '@react-native-picker/picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -186,7 +186,9 @@ const GiveNewReference = () => {
     }
     return (
       <View className="flex-1 bg-white justify-center items-center">
-        <Text className="text-xl text-gray-600">Loading...</Text>
+        <View className='px-10 py-6 bg-white flex justify-center items-center rounded-md' style={{ elevation: 5 }}>
+          <ActivityIndicator color={'#3e70c9'} size={50} />
+        </View>
       </View>
     )
   } else {

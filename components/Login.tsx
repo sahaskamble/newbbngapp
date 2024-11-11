@@ -100,7 +100,7 @@ const Login = () => {
         keyboardVerticalOffset={80}
       >
         <Image
-          source={require("@/assets/images/mainicon.png")}
+          source={require("@/assets/images/icon.png")}
           style={styles.logo}
         />
         <Text style={styles.welcomeText}>Welcome to BBN Global</Text>

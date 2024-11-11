@@ -1,11 +1,11 @@
-import { View, Text, ScrollView, RefreshControl, StyleSheet, Button, TouchableOpacity, TextInput, Modal, BackHandler } from 'react-native'
+import { View, Text, ScrollView, RefreshControl, StyleSheet, Button, TouchableOpacity, TextInput, Modal, BackHandler, Pressable, ActivityIndicator } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { Api_Url } from '@/constants/host_name';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import LottieView from 'lottie-react-native';
 import { FontAwesome, Ionicons } from '@expo/vector-icons';
-import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import { router } from 'expo-router';
+import DateTimePicker from 'react-native-modal-datetime-picker';
 
 export default function chaptermeeting() {
 
@@ -24,6 +24,8 @@ export default function chaptermeeting() {
   const [meetVenue, setmeetVenue] = useState('');
   const [Search, setSearch] = useState('');
   const [isModalOpen, setisModalOpen] = useState(false);
+  const [isDateVisible, setisDateVisible] = useState(false);
+  const [isTimeVisible, setisTimeVisible] = useState(false);
 
   const fetchMeetings = async () => {
     setisLoading(true);
@@ -129,11 +131,20 @@ export default function chaptermeeting() {
         setTimeout(() => {
           setisLoading(false);
         }, 2000);
+        setisModalOpen(!isModalOpen)
       }
 
     } catch (e: any) {
       throw console.error(e);
     }
+  }
+
+  function handleShowDate() {
+    setisDateVisible(!isDateVisible);
+  }
+
+  function handleShowTime() {
+    setisTimeVisible(!isTimeVisible);
   }
 
   // let date: Date = new Date();
@@ -169,16 +180,10 @@ export default function chaptermeeting() {
 
   if (isLoading) {
     return (
-      <View className="flex-1 justify-center items-center bg-gray-200">
-        <Text className="text-xl text-gray-700">Loading...</Text>
-        <LottieView
-          autoPlay
-          source={require('@/assets/loader.json')}
-          style={{
-            width: 200,
-            height: 200,
-          }}
-        />
+      <View className="flex-1 justify-center items-center bg-gray-300">
+        <View className='px-10 py-6 bg-white flex justify-center items-center rounded-md' style={{ elevation: 5 }}>
+          <ActivityIndicator color={'#3e70c9'} size={50} />
+        </View>
       </View>
     )
   }
@@ -255,23 +260,70 @@ export default function chaptermeeting() {
         visible={isModalOpen}
         onRequestClose={() => { setisModalOpen(!isModalOpen) }}
       >
-        <View style={{ padding: 10, flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <Button title='Pick date' />
-          <Button title='Pick time' />
-          <TextInput
-            placeholder='Enter Meeting Title'
-            style={styles.SearchInput}
-            onChangeText={(e: any) => setmeetTitle(e)}
-          />
-          <TextInput
-            placeholder='Enter Meeting Venue'
-            style={styles.SearchInput}
-            onChangeText={(e: any) => setmeetVenue(e)}
-            multiline={true}
-            numberOfLines={4}
-          />
+        <View style={{ paddingHorizontal: 15, flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Date</Text>
+            <TextInput
+              placeholder='Select Date'
+              style={styles.SearchInput}
+              onFocus={handleShowDate}
+            />
+            <DateTimePicker
+              isVisible={isDateVisible}
+              mode='date'
+              onConfirm={(e) => {
+                console.log(e)
+                setmeetDate(e);
+              }}
+              onCancel={handleShowDate}
+            />
+          </View>
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Time</Text>
+            <TextInput
+              placeholder='Select time'
+              style={styles.SearchInput}
+              onFocus={handleShowTime}
+            />
+            <DateTimePicker
+              isVisible={isTimeVisible}
+              mode='time'
+              onConfirm={(e) => {
+                console.log(e)
+              }}
+              onCancel={handleShowTime}
+            />
+          </View>
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Title</Text>
+            <TextInput
+              placeholder='Enter Meeting Title'
+              style={styles.SearchInput}
+              onChangeText={(e: any) => setmeetTitle(e)}
+            />
+          </View>
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Meeting Venue</Text>
+            <TextInput
+              placeholder='Enter Meeting Venue'
+              style={styles.SearchInput}
+              onChangeText={(e: any) => setmeetVenue(e)}
+              multiline={true}
+              numberOfLines={3}
+            />
+          </View>
         </View>
-        <Text style={{ padding: 10, margin: 10, backgroundColor: '#3e70c9', color: '#fff' }} onPress={() => { setisModalOpen(!isModalOpen) }}>Test Modal</Text>
+        <Pressable
+          style={{
+            padding: 10,
+            margin: 10,
+            borderRadius: 7,
+            backgroundColor: '#3e70c9',
+          }}
+          onPress={handleAddMeeting}
+        >
+          <Text style={{ color: '#fff', fontSize: 18, textAlign: 'center' }}>Add Meeting</Text>
+        </Pressable>
       </Modal>
     </View>
   )
@@ -317,7 +369,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 'auto',
     marginVertical: 6,
     padding: 12,
-    backgroundColor: '#f44236',
+    backgroundColor: '#3e70c9',
     borderRadius: 5,
     flexDirection: 'row',
     justifyContent: 'center',
@@ -331,5 +383,12 @@ const styles = StyleSheet.create({
     padding: 8,
     elevation: 6,
     backgroundColor: '#fff',
+    borderRadius: 8,
+  },
+  inputContainer: {
+    width: '100%',
+  },
+  label: {
+    fontSize: 18,
   },
 })

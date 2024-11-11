@@ -4,7 +4,7 @@ import { router } from 'expo-router';
 import 'nativewind';
 import { styled } from 'nativewind';
 import { useEffect, useState } from 'react';
-import { TouchableOpacity, ScrollView, Text, View, Modal, TextInput, BackHandler } from 'react-native';
+import { TouchableOpacity, ScrollView, Text, View, Modal, TextInput, BackHandler, ActivityIndicator } from 'react-native';
 
 const StyledView = styled(View);
 const StyledText = styled(Text);
@@ -141,7 +141,9 @@ export default function GivenReferences() {
       {
         isLoading ? (
           <View className='flex-1 justify-center items-center'>
-            <Text className='text-xl text-gray-500'>Loading...</Text>
+            <View className='px-10 py-6 bg-white flex justify-center items-center rounded-md' style={{ elevation: 5 }}>
+              <ActivityIndicator color={'#3e70c9'} size={50} />
+            </View>
           </View>
         ) : (
           <View className='px-4 py-2'>

@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import 'nativewind';
 import { useEffect, useMemo, useState } from 'react';
-import { TouchableOpacity, ScrollView, Text, View, SafeAreaView, Modal, TextInput, Button, BackHandler } from 'react-native';
+import { TouchableOpacity, ScrollView, Text, View, SafeAreaView, Modal, TextInput, Button, BackHandler, ActivityIndicator } from 'react-native';
 import { RadioGroup } from 'react-native-radio-buttons-group';
 
 export default function RecivedReferences() {
@@ -31,7 +31,7 @@ export default function RecivedReferences() {
     },
   ]), []);
 
-  const [selectedId, setSelectedId] = useState();
+  const [selectedId, setSelectedId] = useState('');
 
   const fetchReferences = async () => {
     setisLoading(true);
@@ -94,50 +94,52 @@ export default function RecivedReferences() {
       {
         isLoading ? (
           <View className='flex-1 justify-center items-center'>
-            <Text className='text-xl text-gray-500'>Loading...</Text>
+            <View className='px-10 py-6 bg-white flex justify-center items-center rounded-md' style={{ elevation: 5 }}>
+              <ActivityIndicator color={'#3e70c9'} size={50} />
+            </View>
           </View>
         ) : (
           <View className='px-4 py-2'>
             <ScrollView className='w-full'>
-              {References.map((reference, index) => (
+              {References.map((reference: any, index: any) => (
                 <View key={index} className='w-full bg-white h-auto p-4 text-gray-500 my-2 rounded-lg'>
-                  <Text className='text-xl font-bold text-gray-600'>To : {reference.Reference.to_whom}</Text>
+                  <Text className='text-xl font-bold text-gray-600'>To : {reference?.Reference.to_whom}</Text>
                   <View>
                     <Text
                       className='text-lg py-2'
                     >
-                      Referral Name : {reference.Reference.name_of_referral} ,
+                      Referral Name : {reference?.Reference.name_of_referral} ,
                     </Text>
                     <View className='w-full inline-flex flex-row justify-start items-center'>
                       <Text
                         className='bg-teal-400 text-white p-1'
                       >
-                        {reference.Reference.date}
+                        {reference?.Reference.date}
                       </Text>
                       <Text
-                        className={`font-bold inline-block p-1 ${reference.Reference.status === 'Business Done' ? 'bg-green-400 text-white' : 'bg-gray-400 text-white'}`}
+                        className={`font-bold inline-block p-1 ${reference?.Reference.status === 'Business Done' ? 'bg-green-400 text-white' : 'bg-gray-400 text-white'}`}
                       >
-                        {reference.Reference.status}
+                        {reference?.Reference.status}
                       </Text>
                     </View>
                     {
-                      reference.ReferenceTrack[0].comment === ''
+                      reference?.ReferenceTrack[0].comment === ''
                         ? [] :
                         <Text
                           className='text-black my-2 text-xl'
                         >
                           "
-                          {reference.ReferenceTrack[0].comment}
+                          {reference?.ReferenceTrack[0].comment}
                           "
                         </Text>
                     }
                     <Text className='my-2'>
-                      {reference.Reference.address_line_1}
+                      {reference?.Reference.address_line_1}
                     </Text>
                     <View className='inline-flex flex-row items-center gap-4 py-2'>
                       <FontAwesome name='paper-plane-o' size={20} color="gray" />
                       <Text className='text-lg text-gray-500'>
-                        {reference.Reference.email}
+                        {reference?.Reference.email}
                       </Text>
                     </View>
                     <View className='w-full justify-center items-center'>
@@ -152,7 +154,7 @@ export default function RecivedReferences() {
                           <Text className='text-white text-center'>Take Action</Text>
                         </TouchableOpacity>
                         {
-                          reference.Reference.status === 'Business Done' ? (
+                          reference?.Reference.status === 'Business Done' ? (
                             <TouchableOpacity
                               onPress={() => {
                                 setModalVisible(true);
@@ -254,7 +256,3 @@ export default function RecivedReferences() {
     </View>
   );
 }
-
-// <TouchableOpacity className='w-[33%] bg-red-500 p-2 text-center rounded-md'>
-//   <Text className='text-white text-center'>Delete</Text>
-// </TouchableOpacity>

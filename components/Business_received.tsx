@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, TextInput, BackHandler } from 'react-native';
+import { View, Text, ScrollView, TextInput, BackHandler, ActivityIndicator } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
@@ -70,11 +70,12 @@ export default function Business_given() {
   if (isLoading) {
     return (
       <View className='flex-1 justify-center items-center'>
-        <Text className='text-xl text-gray-600'>Loading...</Text>
+        <View className='px-10 py-6 bg-white flex justify-center items-center rounded-md' style={{ elevation: 5 }}>
+          <ActivityIndicator color={'#3e70c9'} size={50} />
+        </View>
       </View>
     );
   }
-
   return (
     <View className='flex-1 w-full bg-gray-200'>
       <View className='px-2 py-2'>
