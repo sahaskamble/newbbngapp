@@ -5,7 +5,6 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Api_Url } from '@/constants/host_name';
-import LottieView from 'lottie-react-native';
 import { useFocusEffect } from 'expo-router';
 
 export default function DashBoard() {

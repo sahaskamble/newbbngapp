@@ -2,10 +2,17 @@ import { View, Text, ScrollView, RefreshControl, StyleSheet, Button, TouchableOp
 import React, { useEffect, useState } from 'react'
 import { Api_Url } from '@/constants/host_name';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import LottieView from 'lottie-react-native';
-import { FontAwesome, Ionicons } from '@expo/vector-icons';
+import { FontAwesome, Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import DateTimePicker from 'react-native-modal-datetime-picker';
+import { formatDate, formatTime } from '@/components/FormatDate';
+import { Picker } from '@react-native-picker/picker';
+
+type MeetTime = {
+  hour: string;
+  min: string;
+  meridian: string;
+};
 
 export default function chaptermeeting() {
 
@@ -13,9 +20,9 @@ export default function chaptermeeting() {
   const [chapters, setchapters] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const [isLoading, setisLoading] = useState(false);
-  const [meetDate, setmeetDate] = useState(new Date());
+  const [meetDate, setmeetDate] = useState('');
   const [chapterId, setchapterId] = useState('');
-  const [meetTime, setmeetTime] = useState({
+  const [meetTime, setmeetTime] = useState<MeetTime>({
     hour: '',
     min: '',
     meridian: ''
@@ -147,17 +154,6 @@ export default function chaptermeeting() {
     setisTimeVisible(!isTimeVisible);
   }
 
-  // let date: Date = new Date();
-  //
-  // function showMode(currentMode: any) {
-  //   DateTimePickerAndroid.open({
-  //     value: date,
-  //     onChange: (e, d) => { setmeetDate(d) },
-  //     mode: currentMode,
-  //     is24Hour: false,
-  //   })
-  // }
-
   useEffect(() => {
     const backAction = () => {
       router.back();
@@ -199,14 +195,39 @@ export default function chaptermeeting() {
         }}
       >
         <View>
-          <TextInput
-            placeholder='Search'
-            placeholderTextColor={'gray'}
-            className='text-lg my-2 flex-1'
-            value={Search}
-            style={styles.SearchInput}
-            onChangeText={setSearch} // Update Search state
-          />
+          <View style={styles.SearchBar}>
+            <TextInput
+              placeholder='Search'
+              placeholderTextColor={'gray'}
+              className='text-lg my-2 flex-1 px-4 py-1'
+              value={Search}
+              onChangeText={setSearch} // Update Search state
+            />
+          </View>
+          <View
+            style={{ marginVertical: 10, }}
+          >
+            <Picker
+              selectedValue={chapterId}
+              onValueChange={(itemValue) => { setchapterId(itemValue) }}
+              style={{
+                height: 50,
+                backgroundColor: '#fff',
+                elevation: 4,
+                borderRadius: 20
+              }}
+            >
+              <Picker.Item label='--Select Only When Adding Meeting--' value='0' />
+              {
+                chapters?.map((chap: any, index: any) => {
+                  console.log(chap)
+                  return (
+                    <Picker.Item key={index} label={chap?.Chapter?.chapter} value={chap.Chapter?.id} />
+                  )
+                })
+              }
+            </Picker>
+          </View>
           <TouchableOpacity
             style={styles.AddMeetingButton}
             onPress={() => { setisModalOpen(!isModalOpen) }}
@@ -242,9 +263,6 @@ export default function chaptermeeting() {
                 <TouchableOpacity style={[styles.MeetingButtons, { backgroundColor: '#f59345' }]}>
                   <Text style={{ fontSize: 18, color: '#fff' }}>Edit Attendance</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={[styles.MeetingButtons, { backgroundColor: '#3e70c9' }]}>
-                  <FontAwesome name='edit' size={25} color={'#fff'} />
-                </TouchableOpacity>
                 <TouchableOpacity style={[styles.MeetingButtons, { backgroundColor: '#f44236' }]}>
                   <FontAwesome name='trash' size={25} color={'#fff'} />
                 </TouchableOpacity>
@@ -260,69 +278,98 @@ export default function chaptermeeting() {
         visible={isModalOpen}
         onRequestClose={() => { setisModalOpen(!isModalOpen) }}
       >
+        <View className='p-4'>
+          <Text className='text-xl font-bold'>Add Chapter Meeting</Text>
+        </View>
         <View style={{ paddingHorizontal: 15, flex: 1, justifyContent: 'center', alignItems: 'center' }}>
           <View style={styles.inputContainer}>
             <Text style={styles.label}>Date</Text>
-            <TextInput
-              placeholder='Select Date'
-              style={styles.SearchInput}
-              onFocus={handleShowDate}
-            />
+            <View style={styles.SearchInputContainer}>
+              <TextInput
+                placeholder='Select Date'
+                style={styles.SearchInput}
+                defaultValue={meetDate}
+              />
+              <TouchableOpacity
+                onPress={handleShowDate}
+                className='p-3'
+              >
+                <MaterialIcons name='date-range' size={24} color={'black'} />
+              </TouchableOpacity>
+            </View>
             <DateTimePicker
               isVisible={isDateVisible}
               mode='date'
               onConfirm={(e) => {
-                console.log(e)
-                setmeetDate(e);
+                console.log(formatDate(e, 'dd-MM-yyyy'));
+                const formatedDate: string = formatDate(e, 'dd-MM-yyyy');
+                setmeetDate(formatedDate);
               }}
               onCancel={handleShowDate}
             />
           </View>
           <View style={styles.inputContainer}>
             <Text style={styles.label}>Time</Text>
-            <TextInput
-              placeholder='Select time'
-              style={styles.SearchInput}
-              onFocus={handleShowTime}
-            />
+            <View style={styles.SearchInputContainer}>
+              <TextInput
+                placeholder='Select Time'
+                style={styles.SearchInput}
+                defaultValue={
+                  meetTime.hour === '' ? '00:00' : `${meetTime.hour}:${meetTime.min} ${meetTime.meridian}`
+                }
+              />
+              <TouchableOpacity
+                onPress={handleShowTime}
+                className='p-3'
+              >
+                <Ionicons name="time" size={24} color={"black"} />
+              </TouchableOpacity>
+            </View>
             <DateTimePicker
               isVisible={isTimeVisible}
               mode='time'
               onConfirm={(e) => {
-                console.log(e)
+                const formatedTime = formatTime(e);
+                setmeetTime((time) => ({ ...time, hour: formatedTime.hour, min: formatedTime.minute, meridian: formatedTime.meridian }))
               }}
               onCancel={handleShowTime}
             />
           </View>
           <View style={styles.inputContainer}>
             <Text style={styles.label}>Title</Text>
-            <TextInput
-              placeholder='Enter Meeting Title'
-              style={styles.SearchInput}
-              onChangeText={(e: any) => setmeetTitle(e)}
-            />
+            <View style={styles.SearchInputContainer}>
+              <TextInput
+                placeholder='Enter Meeting Title'
+                style={styles.SearchInput}
+                className='p-3'
+                onChangeText={(e: any) => setmeetTitle(e)}
+              />
+            </View>
           </View>
           <View style={styles.inputContainer}>
             <Text style={styles.label}>Meeting Venue</Text>
-            <TextInput
-              placeholder='Enter Meeting Venue'
-              style={styles.SearchInput}
-              onChangeText={(e: any) => setmeetVenue(e)}
-              multiline={true}
-              numberOfLines={3}
-            />
+            <View style={styles.SearchInputContainer}>
+              <TextInput
+                placeholder='Enter Meeting Venue'
+                style={styles.SearchInput}
+                className='p-3'
+                onChangeText={(e: any) => setmeetVenue(e)}
+                multiline={true}
+                numberOfLines={3}
+              />
+            </View>
           </View>
         </View>
         <Pressable
           style={{
-            padding: 10,
+            padding: 13,
             margin: 10,
             borderRadius: 7,
             backgroundColor: '#3e70c9',
           }}
           onPress={handleAddMeeting}
         >
-          <Text style={{ color: '#fff', fontSize: 18, textAlign: 'center' }}>Add Meeting</Text>
+          <Text style={{ color: '#fff', fontSize: 20, fontWeight: 'bold', textAlign: 'center' }}>Add Meeting</Text>
         </Pressable>
       </Modal>
     </View>
@@ -337,12 +384,20 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     elevation: 4,
   },
+  SearchBar: {
+    width: '100%',
+    elevation: 6,
+    borderRadius: 8,
+    marginVertical: 10,
+    backgroundColor: '#fff',
+  },
   innercontainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
   MeetingTitle: {
     fontSize: 19,
+    maxWidth: '80%',
   },
   MeetingDate: {
     fontSize: 16,
@@ -376,19 +431,30 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 10,
   },
-  SearchInput: {
-    width: '100%',
-    marginVertical: 10,
-    fontSize: 18,
-    padding: 8,
-    elevation: 6,
-    backgroundColor: '#fff',
-    borderRadius: 8,
-  },
   inputContainer: {
     width: '100%',
+  },
+  SearchInputContainer: {
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    elevation: 6,
+    borderRadius: 8,
+    marginVertical: 10,
+    backgroundColor: '#fff',
+  },
+  SearchInput: {
+    flex: 1,
+    fontSize: 18,
+    paddingHorizontal: 15,
+    paddingVertical: 4,
   },
   label: {
     fontSize: 18,
   },
 })
+
+// <TouchableOpacity style={[styles.MeetingButtons, { backgroundColor: '#3e70c9' }]}>
+//   <FontAwesome name='edit' size={25} color={'#fff'} />
+// </TouchableOpacity>
